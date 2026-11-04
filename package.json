@@ -14,9 +14,14 @@
     "./package.json": "./package.json"
   },
   "files": [
-    "lib",
+    "lib/**/*.js",
+    "lib/**/*.js.map",
+    "src/**/*.ts",
+    "src/**/*.tsx",
+    "src/**/*.css",
     "cordis.patch.yml",
     "README.md",
+    "README.en.md",
     "LICENSE"
   ],
   "dsh": {
