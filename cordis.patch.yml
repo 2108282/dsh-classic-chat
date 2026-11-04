@@ -1,11 +1,4 @@
-# 1. 物理屏蔽官方引起全局回流与流式卡顿的对话组件
-- id: ui-conversation
-  disabled: true
-
-- id: ui-chat
-  disabled: true
-
-# 2. 挂载完整的平滑打字机与零重排跟随引擎
+# Applied when this package appears in a profile's dsh.profile.bundles list.
 - insert:
     - id: smooth-stream
       name: dsh-smooth-stream
