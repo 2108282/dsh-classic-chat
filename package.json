@@ -4,6 +4,15 @@
   "description": "DSH 经典极速对话窗插件：屏蔽官方卡顿组件，自带 0.2.1 完整对话窗 + dsh-smooth-stream 二阶弹簧平滑流，深度兼容未来协议",
   "main": "lib/index.js",
   "type": "module",
+  "exports": {
+    ".": {
+      "default": "./lib/index.js"
+    },
+    "./client": {
+      "default": "./lib/client.js"
+    },
+    "./package.json": "./package.json"
+  },
   "files": [
     "lib",
     "cordis.patch.yml",
@@ -19,7 +28,6 @@
       "platform": "web",
       "inject": [
         "@deepseek-ai/dsh-client-runtime",
-        "@deepseek-ai/dsh-client-ui-conversation",
         "@deepseek-ai/dsh-client-ui-slots",
         "@deepseek-ai/dsh-client-ui-attachment",
         "@deepseek-ai/dsh-client-ui-primitives"
