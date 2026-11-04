@@ -1,7 +1,7 @@
 {
   "name": "dsh-classic-chat",
   "version": "1.0.0",
-  "description": "DSH 经典极速对话窗插件：沿用 0.2.1 完整会话装配与渲染，屏蔽 0.2.2+ 重排卡顿，深度兼容未来新协议",
+  "description": "DSH 经典极速对话窗插件：集成 0.2.1 完整会话装配与渲染 + dsh-smooth-stream 二阶弹簧平滑流引擎，屏蔽 0.2.2+ 重排卡顿，深度兼容未来新协议",
   "main": "lib/index.js",
   "type": "module",
   "files": [
@@ -15,13 +15,23 @@
       "patch": "./cordis.patch.yml"
     },
     "client": {
-      "entry": "./lib/client.js"
+      "entry": "./lib/client.js",
+      "platform": "web",
+      "inject": [
+        "@deepseek-ai/dsh-client-runtime",
+        "@deepseek-ai/dsh-client-ui-conversation",
+        "@deepseek-ai/dsh-client-ui-slots",
+        "@deepseek-ai/dsh-client-ui-attachment",
+        "@deepseek-ai/dsh-client-ui-primitives"
+      ]
     }
   },
   "keywords": [
     "dsh",
     "deepseek-harness",
     "chat",
+    "smooth-stream",
+    "typewriter",
     "ui",
     "plugin"
   ],
