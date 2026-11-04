@@ -1,0 +1,12 @@
+# dsh-classic-chat bundle patch
+# 1. 屏蔽官方升级后引起卡顿与重排风暴的对话窗组件
+- id: ui-conversation
+  disabled: true
+
+- id: ui-chat
+  disabled: true
+
+# 2. 挂载经兼容优化与性能修复的经典极速对话窗插件
+- insert:
+    - id: classic-chat
+      name: 'dsh-classic-chat'

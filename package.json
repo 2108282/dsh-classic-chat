@@ -1,0 +1,30 @@
+{
+  "name": "dsh-classic-chat",
+  "version": "1.0.0",
+  "description": "DSH 经典极速对话窗插件：沿用 0.2.1 完整会话装配与渲染，屏蔽 0.2.2+ 重排卡顿，深度兼容未来新协议",
+  "main": "lib/index.js",
+  "type": "module",
+  "files": [
+    "lib",
+    "cordis.patch.yml",
+    "README.md",
+    "LICENSE"
+  ],
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "entry": "./lib/client.js"
+    }
+  },
+  "keywords": [
+    "dsh",
+    "deepseek-harness",
+    "chat",
+    "ui",
+    "plugin"
+  ],
+  "author": "2108282",
+  "license": "MIT"
+}
