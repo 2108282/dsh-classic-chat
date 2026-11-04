@@ -1,7 +1,14 @@
-# Applied when this package appears in a profile's dsh.profile.bundles list.
+# 1. 物理屏蔽官方引起卡顿与全局回流的对话窗组件
+- id: ui-conversation
+  disabled: true
+
+- id: ui-chat
+  disabled: true
+
+# 2. 挂载全自包含的经典极速对话窗插件（自带完整装配、聊天渲染与平滑打字机）
 - insert:
-    - id: smooth-stream
-      name: dsh-smooth-stream
+    - id: classic-chat
+      name: 'dsh-classic-chat'
       config:
         mode: typewriter
         preset: balanced
