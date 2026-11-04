@@ -1,13 +1,65 @@
 {
-  "name": "dsh-classic-chat",
-  "version": "1.0.0",
-  "description": "DSH 经典极速对话窗插件：集成 0.2.1 完整会话装配与渲染 + dsh-smooth-stream 二阶弹簧平滑流引擎，屏蔽 0.2.2+ 重排卡顿，深度兼容未来新协议",
-  "main": "lib/index.js",
+  "name": "dsh-smooth-stream",
+  "version": "0.6.2",
+  "description": "Fluid streaming rendering and silky scrolling for DeepSeek Harness replies, including Markdown, code blocks, tables, and tool results.",
+  "license": "MIT",
   "type": "module",
+  "packageManager": "pnpm@11.23.0",
+  "engines": {
+    "node": "^22.19.0 || >=24.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Laplace-bit/dsh-smooth-stream.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Laplace-bit/dsh-smooth-stream/issues"
+  },
+  "homepage": "https://laplace-bit.github.io/dsh-smooth-stream/",
+  "keywords": [
+    "dsh-plugin",
+    "deepseek-harness",
+    "deepseek",
+    "dsh",
+    "cordis",
+    "streaming",
+    "smooth-streaming",
+    "fluid-streaming",
+    "streaming-renderer",
+    "markdown-streaming",
+    "smooth-scrolling",
+    "smooth-scroll",
+    "smooth-stream",
+    "typewriter",
+    "typewriter-effect",
+    "markdown",
+    "chat-ui",
+    "web-ui",
+    "plugin",
+    "react"
+  ],
+  "main": "lib/index.js",
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "default": "./lib/index.js"
+    },
+    "./client": {
+      "types": "./src/client/index.ts",
+      "default": "./lib/client.js"
+    },
+    "./src/*": "./src/*",
+    "./package.json": "./package.json"
+  },
   "files": [
-    "lib",
+    "lib/**/*.js",
+    "lib/**/*.js.map",
+    "src/**/*.ts",
+    "src/**/*.tsx",
+    "src/**/*.css",
     "cordis.patch.yml",
     "README.md",
+    "README.en.md",
     "LICENSE"
   ],
   "dsh": {
@@ -15,26 +67,111 @@
       "patch": "./cordis.patch.yml"
     },
     "client": {
-      "entry": "./lib/client.js",
       "platform": "web",
       "inject": [
         "@deepseek-ai/dsh-client-runtime",
         "@deepseek-ai/dsh-client-ui-conversation",
-        "@deepseek-ai/dsh-client-ui-slots",
-        "@deepseek-ai/dsh-client-ui-attachment",
-        "@deepseek-ai/dsh-client-ui-primitives"
+        "@deepseek-ai/dsh-client-locale",
+        "@deepseek-ai/dsh-client-connection",
+        "@deepseek-ai/dsh-client-ui-settings",
+        "@deepseek-ai/dsh-client-ui-settings-plugins"
       ]
     }
   },
-  "keywords": [
-    "dsh",
-    "deepseek-harness",
-    "chat",
-    "smooth-stream",
-    "typewriter",
-    "ui",
-    "plugin"
-  ],
-  "author": "2108282",
-  "license": "MIT"
+  "scripts": {
+    "benchmark": "node scripts/run-stream-benchmark.mjs",
+    "build": "tsdown",
+    "dev:watch": "tsdown --watch",
+    "host:sync": "pnpm build && node scripts/check-lib-fresh.mjs",
+    "build:repro": "esbuild repro/main.tsx --bundle --format=esm --platform=browser --loader:.css=local-css --alias:@deepseek-ai/dsh-client-runtime=./repro/shims/client-runtime.ts --alias:@deepseek-ai/dsh-client-runtime/client=./repro/shims/client-runtime.ts --alias:@deepseek-ai/dsh-client-ui-primitives=./repro/shims/primitives.tsx --outfile=repro/bundle.js",
+    "build:stress": "esbuild repro/stress-120fps.tsx --bundle --format=esm --platform=browser --loader:.css=local-css --alias:@deepseek-ai/dsh-client-runtime=./repro/shims/client-runtime.ts --alias:@deepseek-ai/dsh-client-runtime/client=./repro/shims/client-runtime.ts --alias:@deepseek-ai/dsh-client-ui-primitives=./repro/shims/primitives.tsx --outfile=repro/stress-120fps.bundle.js",
+    "stress:120fps": "node scripts/stress-test-120fps.mjs",
+    "test:rebound": "node scripts/verify-y-rebound.mjs",
+    "prepare": "tsdown",
+    "test": "vitest run",
+    "typecheck": "tsc -p tsconfig.json --pretty false",
+    "test:smooth": "node scripts/verify-y-rebound.mjs && node scripts/probe-tailbob.mjs 1200 20 && node scripts/verify-overflow.mjs --runs 3",
+    "probe:overlap": "node scripts/probe-overlap.mjs",
+    "probe:stability": "node scripts/verify-follow-stability.mjs"
+  },
+  "peerDependencies": {
+    "@deepseek-ai/cordis": "^4.0.1",
+    "@deepseek-ai/dsh-client-connection": "*",
+    "@deepseek-ai/dsh-client-locale": "*",
+    "@deepseek-ai/dsh-client-runtime": "*",
+    "@deepseek-ai/dsh-client-ui-attachment": "*",
+    "@deepseek-ai/dsh-client-ui-conversation": "*",
+    "@deepseek-ai/dsh-client-ui-primitives": "*",
+    "@deepseek-ai/dsh-client-ui-settings": "*",
+    "@deepseek-ai/dsh-client-ui-settings-plugins": "*",
+    "@deepseek-ai/dsh-client-ui-slots": "*",
+    "@deepseek-ai/dsh-host-webserver": "*",
+    "@deepseek-ai/dsh-settings": "*",
+    "@deepseek-ai/schemastery": "*",
+    "react": "^18.2.0"
+  },
+  "peerDependenciesMeta": {
+    "@deepseek-ai/dsh-client-locale": {
+      "optional": true
+    },
+    "@deepseek-ai/dsh-client-runtime": {
+      "optional": true
+    },
+    "@deepseek-ai/dsh-client-ui-attachment": {
+      "optional": true
+    },
+    "@deepseek-ai/dsh-client-connection": {
+      "optional": true
+    },
+    "@deepseek-ai/dsh-client-ui-conversation": {
+      "optional": true
+    },
+    "@deepseek-ai/dsh-client-ui-primitives": {
+      "optional": true
+    },
+    "@deepseek-ai/dsh-client-ui-settings": {
+      "optional": true
+    },
+    "@deepseek-ai/dsh-client-ui-settings-plugins": {
+      "optional": true
+    },
+    "@deepseek-ai/dsh-client-ui-slots": {
+      "optional": true
+    },
+    "@deepseek-ai/dsh-host-webserver": {
+      "optional": true
+    },
+    "@deepseek-ai/dsh-settings": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "@deepseek-ai/cordis": "4.0.1",
+    "@deepseek-ai/dsh-client-connection": "0.1.0-rc.6",
+    "@deepseek-ai/dsh-client-locale": "0.1.2-alpha.3",
+    "@deepseek-ai/dsh-client-runtime": "0.1.0-rc.6",
+    "@deepseek-ai/dsh-client-store": "0.1.2-alpha.3",
+    "@deepseek-ai/dsh-client-ui-attachment": "0.1.0-rc.6",
+    "@deepseek-ai/dsh-client-ui-conversation": "0.1.0-rc.6",
+    "@deepseek-ai/dsh-client-ui-primitives": "0.1.2-alpha.3",
+    "@deepseek-ai/dsh-client-ui-settings": "0.1.0-rc.6",
+    "@deepseek-ai/dsh-client-ui-settings-plugins": "0.1.0-rc.6",
+    "@deepseek-ai/dsh-client-ui-slots": "0.1.0-rc.6",
+    "@deepseek-ai/dsh-host-webserver": "0.1.0-rc.6",
+    "@deepseek-ai/dsh-settings": "0.1.0-rc.6",
+    "@deepseek-ai/schemastery": "3.18.1",
+    "@testing-library/react": "^16.3.0",
+    "@types/node": "^22.20.0",
+    "@types/react": "~18.3.1",
+    "@types/react-dom": "~18.3.0",
+    "esbuild": "^0.28.2",
+    "jsdom": "^26.1.0",
+    "lightningcss": "^1.30.1",
+    "playwright-core": "^1.62.1",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "tsdown": "^0.22.2",
+    "typescript": "^5.9.2",
+    "vitest": "^4.1.8"
+  }
 }

@@ -1,12 +1,17 @@
-# dsh-classic-chat bundle patch
-# 1. 屏蔽官方升级后引起卡顿与重排风暴的对话窗组件
+# 1. 物理屏蔽官方引起全局回流与流式卡顿的对话组件
 - id: ui-conversation
   disabled: true
 
 - id: ui-chat
   disabled: true
 
-# 2. 挂载经兼容优化与性能修复的经典极速对话窗插件
+# 2. 挂载完整的平滑打字机与零重排跟随引擎
 - insert:
-    - id: classic-chat
-      name: 'dsh-classic-chat'
+    - id: smooth-stream
+      name: dsh-smooth-stream
+      config:
+        mode: typewriter
+        preset: balanced
+        revealCharsPerSec: 80
+        scrollSpeedPxPerSec: 48
+        maxScrollSpeedPxPerSec: 1000

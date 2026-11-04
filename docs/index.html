@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>dsh-smooth-stream · 流式文本呈现与二阶阻尼视口跟随引擎</title>
+<meta name="description" content="dsh-smooth-stream 为 DeepSeek Harness (dsh) Web UI 打造物理级流式渲染：解耦揭示节奏与视口跟随，二阶阻尼弹簧积分，GPU 合成层零重排位移补偿，跨刷新率一致性。">
+<meta name="keywords" content="dsh-smooth-stream, dsh plugin, DeepSeek Harness 插件, 流式渲染, 视口跟随, 二阶弹簧, 零重排, 闭环背压, ProMotion, streaming markdown, cordis plugin">
+<meta name="author" content="Laplace-bit">
+<meta name="robots" content="index,follow,max-image-preview:large">
+<meta name="theme-color" content="#4d6bfe">
+<link rel="canonical" href="https://laplace-bit.github.io/dsh-smooth-stream/">
+<link rel="alternate" hreflang="zh-CN" href="https://laplace-bit.github.io/dsh-smooth-stream/">
+<link rel="alternate" hreflang="en" href="https://laplace-bit.github.io/dsh-smooth-stream/">
+<link rel="alternate" hreflang="x-default" href="https://laplace-bit.github.io/dsh-smooth-stream/">
+
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="dsh-smooth-stream">
+<meta property="og:title" content="dsh-smooth-stream · 流式文本呈现与二阶阻尼视口跟随引擎">
+<meta property="og:description" content="模型生成是离散的脉冲，而阅读应当是连续的流动。专为 DeepSeek Harness Web UI 打造的无重排流式渲染与连续视口追踪引擎。">
+<meta property="og:url" content="https://laplace-bit.github.io/dsh-smooth-stream/">
+<meta property="og:image" content="https://laplace-bit.github.io/dsh-smooth-stream/og-image.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="710">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:alt" content="dsh-smooth-stream 前后对比：默认流式输出与连续物理流式渲染。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:locale:alternate" content="en_US">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="dsh-smooth-stream · 流式文本呈现与二阶阻尼视口跟随引擎">
+<meta name="twitter:description" content="二阶弹簧物理积分、分数字符积压调度、GPU 合成层零重排跟随。专为 DeepSeek Harness (dsh) Web UI 打造。">
+<meta name="twitter:image" content="https://laplace-bit.github.io/dsh-smooth-stream/og-image.jpg">
+<meta name="twitter:image:alt" content="DeepSeek Harness 流式渲染与连续跟随示例。">
+
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%234d6bfe'/%3E%3Cpath d='M14 20h22M14 30h30M14 40h18' stroke='white' stroke-width='6' stroke-linecap='round'/%3E%3Cpath d='M42 38l6 6 10-12' stroke='%2370e384' stroke-width='6' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "dsh-smooth-stream",
+  "url": "https://laplace-bit.github.io/dsh-smooth-stream/",
+  "description": "Physics-based stream rendering and zero-reflow viewport tracking for DeepSeek Harness (dsh) Web UI.",
+  "applicationCategory": "DeveloperApplication",
+  "operatingSystem": "Linux, macOS, Windows",
+  "programmingLanguage": "TypeScript",
+  "softwareVersion": "0.4.1",
+  "isAccessibleForFree": true,
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+  "license": "https://spdx.org/licenses/MIT",
+  "author": { "@type": "Person", "name": "Laplace-bit", "url": "https://github.com/Laplace-bit" }
+}
+</script>
+
+<style>
+:root{--ink:#171c26;--muted:#535e70;--brand:#3d5af1;--bg:#f8fafc;--card:#fff;--line:#e2e8f0;--code:#f1f5f9}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font:15px/1.7 -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;color:var(--ink);background:var(--bg)}
+.wrap{max-width:860px;margin:0 auto;padding:0 24px}
+header{background:linear-gradient(180deg,#edf2f7 0%,#f8fafc 100%);border-bottom:1px solid var(--line);padding:64px 0 44px}
+h1{font-size:2.2rem;letter-spacing:-.03em;font-weight:700}
+h1 span{color:var(--brand)}
+.tagline{color:var(--muted);margin-top:14px;font-size:1.08rem;max-width:46em;line-height:1.65}
+.cta{margin-top:24px;display:flex;gap:12px;flex-wrap:wrap}
+.btn{display:inline-block;padding:9px 18px;border-radius:8px;text-decoration:none;font-weight:600;font-size:.92rem}
+.btn.primary{background:var(--brand);color:#fff}
+.btn.ghost{border:1px solid var(--line);background:#fff;color:var(--ink)}
+.btn.ghost:hover{border-color:var(--brand);color:var(--brand)}
+.notice{margin-top:16px;font-size:.84rem;color:var(--muted)}
+section{padding:40px 0;border-bottom:1px solid var(--line)}
+section:last-of-type{border-bottom:none}
+h2{font-size:1.35rem;margin-bottom:16px;letter-spacing:-.01em;font-weight:600}
+h2 small{font-weight:400;color:var(--muted);font-size:.9rem;margin-left:6px}
+figure{border:1px solid var(--line);border-radius:12px;overflow:hidden;background:var(--card);box-shadow:0 4px 20px rgba(0,0,0,.03)}
+figure img{display:block;width:100%;height:auto}
+figcaption{padding:10px 16px;font-size:.85rem;color:var(--muted);background:#fff;border-top:1px solid var(--line)}
+ul.f{list-style:none;display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:16px}
+ul.f li{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:16px 18px;box-shadow:0 2px 6px rgba(0,0,0,.02)}
+ul.f b{display:block;margin-bottom:6px;font-size:1rem;color:var(--ink)}
+ul.f p{font-size:.88rem;color:var(--muted);line-height:1.6}
+pre{background:var(--code);border:1px solid var(--line);border-radius:8px;padding:12px 16px;overflow-x:auto;font-size:.88rem}
+code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+p code,li code{background:var(--code);border-radius:4px;padding:1px 5px;font-size:.88em}
+.note{font-size:.88rem;color:var(--muted);margin-top:12px}
+table{border-collapse:collapse;width:100%;background:var(--card);border:1px solid var(--line);border-radius:10px;overflow:hidden;font-size:.9rem}
+th,td{text-align:left;padding:10px 14px;border-bottom:1px solid var(--line)}
+th{background:var(--code);font-size:.85rem;font-weight:600}
+tr:last-child td{border-bottom:none}
+details{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px 18px;margin-bottom:12px}
+summary{font-weight:600;cursor:pointer;font-size:.95rem}
+details p{color:var(--muted);margin-top:8px;font-size:.9rem;line-height:1.65}
+footer{border-top:1px solid var(--line);padding:32px 0 48px;color:var(--muted);font-size:.86rem;background:#fff}
+footer a{color:var(--brand);text-decoration:none}
+a{color:var(--brand)}
+</style>
+</head>
+<body>
+
+<header>
+<div class="wrap">
+<h1>dsh-<span>smooth-stream</span></h1>
+<p class="tagline"><b>模型生成是离散的脉冲，而阅读应当是连续的流动。</b><br>
+专为 DeepSeek Harness（<code>dsh</code>）打造：将突发的 Token 分块平滑为连续展开，以二阶弹簧与 GPU 合成层接管视口跟随，消除大段倾泻与滚动跳帧。<br>
+<span style="font-size:0.95rem;color:var(--muted)">Continuous text reveal and zero-reflow spring follower for the DeepSeek Harness Web UI.</span></p>
+<div class="cta">
+<a class="btn primary" href="https://github.com/Laplace-bit/dsh-smooth-stream">GitHub 仓库</a>
+<a class="btn ghost" href="how-it-works.html">工作原理与架构</a>
+<a class="btn ghost" href="install.html">安装与配置</a>
+<a class="btn ghost" href="https://www.npmjs.com/package/dsh-smooth-stream">npm 页面</a>
+</div>
+<p class="notice">独立开源项目，遵循 MIT 许可证 · Not affiliated with DeepSeek.</p>
+</div>
+</header>
+
+<section id="preview">
+<div class="wrap">
+<h2>视觉对比 <small>Preview</small></h2>
+<figure>
+<img src="compare.gif" alt="对比：左侧为默认 Web UI 流式输出，右侧为 dsh-smooth-stream 连续物理流式渲染。" width="1824" height="1080" loading="lazy">
+<figcaption>左侧：默认 Web UI（分块突进与硬跳） &nbsp;|&nbsp; 右侧：dsh-smooth-stream（连续节奏展开与弹簧跟随）</figcaption>
+</figure>
+</div>
+</section>
+
+<section id="experience">
+<div class="wrap">
+<h2>极致丝滑的阅读质感 <small>The Reading Feel</small></h2>
+<ul class="f">
+<li><b>如水流般呼吸展开</b><p>告别大段文字瞬间“砸”在屏幕上的视觉压迫感。算法将突发的 Token 分块化解为字符级的温润涌现，字里行间富有呼吸节奏。</p></li>
+<li><b>视线无需追赶跳变</b><p>视口跟随如同搭载了高精度阻尼滑轨，随文本延伸平稳推进。换行与代码块落位平滑过渡，彻底告别眼球反复重新寻焦的疲劳。</p></li>
+<li><b>从容应对爆发吞吐</b><p>网络慢时从容展开，模型高并发迸发时长文平稳收敛。无论 Token 产生多快，呈现在眼前的始终是优雅、连续的流动画面。</p></li>
+</ul>
+</div>
+</section>
+
+<section id="architecture">
+<div class="wrap">
+<h2>双引擎物理架构 <small>Architecture</small></h2>
+<ul class="f">
+<li><b>自适应揭示引擎</b><p>基于积压队列深度与分数积分（$\text{debt}$），动态调度字符展开速率。小分块优雅从容，大爆发平滑追赶，单帧折行视觉位移严格限幅在 8px 内，杜绝文字跳变。</p></li>
+<li><b>二阶阻尼弹簧跟随</b><p>以 $k=130, c=24$ 的亚步进弹簧物理模型计算视口运动。真实容器停驻在底部，视觉滞后完全由合成层 <code>transform</code> 吸收，跟随过程零重排（0-Reflow）。</p></li>
+<li><b>闭环背压反馈机制</b><p>当视口滞后接近预留跑道上限时，自动向揭示引擎施加阻尼（最低降速至 0.55x），形成视口与文字生成的动态平衡，防止内容冲出可视区。</p></li>
+<li><b>会话生命周期折叠</b><p>流式期间思考链与工具调用保持实时展开；回合结算完成并稳定后，无缝收拢为极简的「已处理 X秒」状态行，保持对话视图整洁专注。</p></li>
+</ul>
+</div>
+</section>
+
+<section id="details">
+<div class="wrap">
+<h2>工程考量与自律 <small>Engineering Principles</small></h2>
+<ul class="f">
+<li><b>跨刷新率一致性</b><p>基于真实时间驱动物理积分。无论在 60Hz 办公显示器还是 120Hz ProMotion 屏幕上，弹性收敛的物理耗时均保持一致。</p></li>
+<li><b>主线程卡顿自愈</b><p>主线程偶发阻塞时自动钳位物理时间（$\Delta t \le 32\text{ms}$），避免卡顿恢复后单帧倾泻瞬间位移。</p></li>
+<li><b>无障碍与性能守卫</b><p>原生响应 <code>prefers-reduced-motion</code>（直出内容、关闭跟随）；低帧率（&lt;30 FPS）且内容处于屏外时自动挂起揭示，释放渲染算力。</p></li>
+<li><b>零侵入 DOM 架构</b><p>不替换 Markdown 语义树，不干扰宿主复杂自定义工具组件（如钢琴卡片），保持原生选区与复制体验。</p></li>
+</ul>
+</div>
+</section>
+
+<section id="benchmark">
+<div class="wrap">
+<h2>可复现基准 <small>Reproducible Benchmark</small></h2>
+<p>平滑度是可测量的工程指标，仓库自带浏览器级审计测试集，本地随时可跑：</p>
+<table style="margin-top:12px">
+<tr><th>测试闸门</th><th>测试脚本</th><th>验证结果</th></tr>
+<tr><td>流式渲染审计（5 种典型生成模式）</td><td><code>node scripts/run-render-audit.mjs</code></td><td><b>10/10 Clean</b>，零位移回退</td></tr>
+<tr><td>溢出与回弹闸门</td><td><code>node scripts/verify-overflow.mjs</code></td><td><b>3/3</b> 零过滚、零回弹</td></tr>
+<tr><td>尾行晃动抑制探针</td><td><code>pnpm test</code></td><td>单帧位移 ≤30px，7 帧振幅峰值 ≤32px <b>PASS</b></td></tr>
+<tr><td>核心 ESM 产物大小</td><td><code>pnpm build</code></td><td>Gzip 约 <b>4.7 kB</b></td></tr>
+</table>
+<p class="note">更深入的积分公式推导与背压数据，请参阅 <a href="how-it-works.html">工作原理与力学分析</a>。</p>
+</div>
+</section>
+
+<section id="install">
+<div class="wrap">
+<h2>快速安装 <small>Installation</small></h2>
+<pre><code>pnpm dsh plugin --profile web add dsh-smooth-stream</code></pre>
+<p class="note">预构建产物开箱即用，启动 <code>pnpm dsh web</code> 后，Host 控制台输出 <code>[dsh-smooth-stream] plugin loaded!</code> 即表示生效。</p>
+</div>
+</section>
+
+<section id="faq">
+<div class="wrap">
+<h2>常见问题 <small>FAQ</small></h2>
+<details open>
+<summary>「零重排跟随」具体指什么？</summary>
+<p>指视口跟随阶段不触发浏览器的 Layout 重排流程。传统实现反复写入 <code>scrollTop</code> 或修改容器几何尺寸导致每帧回流；本项目在跟随过程中真实滚动条保持在底部，所有位置微调均走 GPU 合成层的 <code>transform: translate3d</code>。文字揭示本身产生的新 DOM 节点仍需计算布局，但节奏被严格限幅，消除单帧跳跃。</p>
+</details>
+<details>
+<summary>如何调整流式节奏？</summary>
+<p>插件默认提供 <code>balanced</code>（均衡）预设，若希望更贴近模型原始到达可选择 <code>realtime</code>，追求极致柔和缓冲可选择 <code>silky</code>。可在 <code>cordis.patch.yml</code> 中配置，亦可在 Web UI 的插件设置卡片中动态微调。</p>
+</details>
+<details>
+<summary>是否会影响思考链与工具调用卡片？</summary>
+<p>不会。流式生成期间思考链与工具结果正常实时展开；回合结算后，控制器会自动折叠中间过程为极简摘要，用户随时可点击展开完整工作流。</p>
+</details>
+<details>
+<summary>如何排查与微调物理参数？</summary>
+<p>在 <b>设置 → 插件 → 插件配置</b> 中开启「显示渲染调试面板」，即可在对话界面实时查看帧率、字符积压、弹性曲线并动态拖拽调整刚度与阻尼系数。</p>
+</details>
+</div>
+</section>
+
+<footer>
+<div class="wrap">
+<p><a href="https://github.com/Laplace-bit/dsh-smooth-stream">dsh-smooth-stream</a> · <a href="install.html">安装指南</a> · <a href="how-it-works.html">工作原理</a> · <a href="https://github.com/Laplace-bit/dsh-smooth-stream/blob/main/LICENSE">MIT License</a> · 适用于 <a href="https://github.com/deepseek-ai/deepseek-harness">DeepSeek Harness</a></p>
+</div>
+</footer>
+
+</body>
+</html>
