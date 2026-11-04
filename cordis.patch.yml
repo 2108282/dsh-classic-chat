@@ -1,9 +1,11 @@
-# 1. 物理屏蔽真正导致卡顿与 DOM 回流雪崩的原生聊天渲染器 (ui-chat)
-# 保留底层的 ui-conversation，确保 workflow-run、skill、schedule 等 10 个业务插件正常激活
+# 1. 物理屏蔽官方升级后引起卡顿与全局回流的对话窗双组件（ui-conversation & ui-chat）
+- id: ui-conversation
+  disabled: true
+
 - id: ui-chat
   disabled: true
 
-# 2. 挂载我们全自包含的经典极速对话窗插件（自带完整聊天渲染与平滑打字机）
+# 2. 挂载全自包含的经典极速对话窗插件（自带完整装配、服务接管、聊天渲染与平滑打字机）
 - insert:
     - id: classic-chat
       name: 'dsh-classic-chat'
