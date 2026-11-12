@@ -30,3 +30,16 @@ describe('vendored client bundle: rc.2 anchoring compatibility', () => {
     expect(bundle.trimEnd().endsWith('}')).toBe(true)
   })
 })
+
+describe('vendored client bundle: rc.2 document paste route', () => {
+  it('ships the shared paste router', () => {
+    expect(bundle).toContain('function createComposerFileIntake()')
+    expect(bundle).toContain('const fileIntake = createComposerFileIntake();')
+  })
+
+  it('joins the route from the composer bar with its occurrence', () => {
+    expect(bundle).toContain('occurrence: props.variant,')
+    expect(bundle.match(/registerFileIntake: fileIntake,/g) ?? []).toHaveLength(2)
+    expect(bundle).toContain('if (typeof registerFileIntake !== "function" || cardRef.current === null) return;')
+  })
+})
