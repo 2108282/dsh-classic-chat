@@ -43,3 +43,23 @@ describe('vendored client bundle: rc.2 document paste route', () => {
     expect(bundle).toContain('if (typeof registerFileIntake !== "function" || cardRef.current === null) return;')
   })
 })
+
+describe('vendored client bundle: failed-turn retry', () => {
+  it('validates the displayed failure before submitting empty input', () => {
+    expect(bundle).toContain('Submit empty input to retry the displayed failed generation')
+    expect(bundle).toContain('shell.submit("queue", "click", true);')
+  })
+
+  it('admits the empty continuation through the input machine', () => {
+    expect(bundle).toContain('submit(mode = "queue", source, allowEmpty = false)')
+    expect(bundle).toContain('if (allowEmpty !== true) return [];')
+    expect(bundle).toContain('"input.continue"')
+  })
+})
+
+describe('vendored client bundle: rc.2 hero frame layer', () => {
+  it('declares the hoc child and wraps the scroll body', () => {
+    expect(bundle).toContain('"conversation.hero.frame": {')
+    expect(bundle).toContain('renderSlot("conversation.hero.frame"')
+  })
+})
