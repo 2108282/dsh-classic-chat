@@ -1,6 +1,6 @@
 {
   "name": "dsh-classic-chat",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "DSH 经典极速对话窗插件：屏蔽官方卡顿组件，自带 0.2.1 完整对话窗 + dsh-smooth-stream 二阶弹簧平滑流，深度兼容未来协议",
   "main": "lib/index.js",
   "type": "module",
